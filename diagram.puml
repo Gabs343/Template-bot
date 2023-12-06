@@ -1,0 +1,54 @@
+@startuml  
+skinparam {
+    linetype ortho
+    ArrowColor SeaGreen
+}
+
+package Bot{
+    class Main{
+        - settings_services: list[SettingService]
+        - logs_services: list[LogService]
+        - bot_name: str
+        - status: str
+        + start(): None
+    }
+
+    abstract SettingService{
+        - settings: dict
+    }
+    class SettingConcrete{}
+
+    abstract LogService{
+        + create(): None
+        + write_info(message: str): None
+        + write_error(message: str, detail: str = None): None
+        + close(): None
+        + create_folder(): None
+    }
+
+    class LogTxt{
+        - path: str
+        - name: str
+        - logger: Logger
+
+        + write_and_execute(function, args): None
+    }
+
+    class LogXlsx{
+        - path: str
+        - name: str
+        - row: int
+        - log: dict
+
+        + write_in_column(column: str, message: str): None
+    }
+}
+
+Main o-left- SettingService
+Main o-right- LogService
+
+SettingService <|.. SettingConcrete
+LogService <|.. LogTxt
+LogService <|.. LogXlsx
+
+@enduml 
