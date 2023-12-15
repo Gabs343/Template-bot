@@ -8,10 +8,10 @@ class Main:
     __logs_services: list[LogService] = []
     __bot_name: str = "TEST"
     __status: str = "READY"
+    __status_callback = None
     
     def __init__(self) -> None:
         self.__settings_services = [setting() for setting in (SettingBot,)]
-        self.__logs_services = [log() for log in (LogTxt, LogXlsx)]
     
     @property   
     def settings_services(self) -> list[SettingService]:
@@ -28,15 +28,24 @@ class Main:
     @property   
     def status(self) -> str:
         return self.__status
+    
+    def set_status_changed_callback(self, callback) -> None:
+        self.__status_callback = callback
+
+    def __notify_status(self, new_status: str) -> None:
+        self.__status = new_status
+        if self.__status_callback:
+            self.__status_callback(new_status)
         
     def start(self) -> None:
-        #Your code goes here
-        for service in self.__settings_services:
-            print(service.settings)
+        self.__logs_services = [log() for log in (LogTxt, LogXlsx)]
+        self.__notify_status(new_status="RUNNING")
         
-        for log in self.__logs_services:
-            log.write_info(log)
-            log.close()
+        #Your code goes here
+        
+        ####################
+          
+        self.__notify_status(new_status="READY")
                  
         
             
