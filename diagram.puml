@@ -10,7 +10,13 @@ package Bot{
         - logs_services: list[LogService]
         - bot_name: str
         - status: str
+        - status_callback: def
         + start(): None
+        + pause(): None
+        + unpause(): None
+        - notify_status(new_status: str): None
+        - get_log(log_type: LogService): LogService
+        - execute_action(function: def, *args): Any
     }
 
     abstract SettingService{
