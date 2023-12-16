@@ -12,10 +12,6 @@ class Main:
     
     def __init__(self) -> None:
         self.__settings_services = [setting() for setting in (SettingBot,)]
-    
-    @__status_callback.setter
-    def set_status_callback(self, callback) -> None:
-        self.__status_callback = callback
         
     @property   
     def settings_services(self) -> list[SettingService]:
@@ -32,6 +28,14 @@ class Main:
     @property   
     def status(self) -> str:
         return self.__status
+    
+    @property   
+    def status_callback(self) -> str:
+        return self.__status_callback
+    
+    @status_callback.setter
+    def status_callback(self, callback) -> None:
+        self.__status_callback = callback
         
     def start(self) -> None:
         self.__logs_services = [log() for log in (LogTxt, LogXlsx)]
