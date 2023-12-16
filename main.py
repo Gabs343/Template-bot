@@ -13,6 +13,10 @@ class Main:
     def __init__(self) -> None:
         self.__settings_services = [setting() for setting in (SettingBot,)]
     
+    @__status_callback.setter
+    def set_status_callback(self, callback) -> None:
+        self.__status_callback = callback
+        
     @property   
     def settings_services(self) -> list[SettingService]:
         return self.__settings_services
@@ -28,14 +32,6 @@ class Main:
     @property   
     def status(self) -> str:
         return self.__status
-    
-    def set_status_changed_callback(self, callback) -> None:
-        self.__status_callback = callback
-
-    def __notify_status(self, new_status: str) -> None:
-        self.__status = new_status
-        if self.__status_callback:
-            self.__status_callback(new_status)
         
     def start(self) -> None:
         self.__logs_services = [log() for log in (LogTxt, LogXlsx)]
@@ -46,8 +42,31 @@ class Main:
         ####################
           
         self.__notify_status(new_status="READY")
-                 
         
+    def pause(self):
+        self.__notify_status(new_status='PAUSED')
+            
+    def unpause(self):
+        self.__notify_status(new_status='RUNNING')
+        
+    def __notify_status(self, new_status: str) -> None:
+        self.__status = new_status
+        logTxt: LogTxt = self.__get_log(log_type=LogTxt)
+        logTxt.write_info(message=f'Bot {new_status}')
+        if self.__status_callback:
+            self.__status_callback(new_status)
+        
+    def __get_log(self, log_type: LogService) -> LogService:
+        return next(log for log in self.__logs_services if isinstance(log, log_type))
+    
+    def __execute_action(self, function, *args):
+        logTxt: LogTxt = self.get_log(log_type=LogTxt)
+        if(self.__status == 'PAUSED'):
+            while True:
+                if(self.__status=='RUNNING'):
+                    break
+        return logTxt.write_and_execute(function, *args)
+                       
             
 if __name__ == "__main__":
     st = time.time()
