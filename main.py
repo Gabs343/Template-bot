@@ -53,6 +53,9 @@ class Main:
     def unpause(self):
         self.__notify_status(new_status='RUNNING')
         
+    def stop(self):
+        self.__notify_status(new_status='CLOSING BOT')
+        
     def __notify_status(self, new_status: str) -> None:
         self.__status = new_status
         logTxt: LogTxt = self.__get_log(log_type=LogTxt)
