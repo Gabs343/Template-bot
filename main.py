@@ -1,4 +1,5 @@
 import time
+import sys
 
 from logs import *
 from settings import *
@@ -37,7 +38,7 @@ class Main:
     def status_callback(self, callback) -> None:
         self.__status_callback = callback
         
-    def start(self) -> None:
+    def start(self, *args) -> None:
         self.__execution_begun()
         
         #Your code goes here
@@ -69,8 +70,8 @@ class Main:
             bot_setting_service.settings['good_executions'] += 1
             
         bot_setting_service.update()
-        self.__close_logs()
         self.__notify_status(new_status="READY")
+        self.__close_logs()
         
     def __notify_status(self, new_status: str) -> None:
         self.__status = new_status
@@ -96,12 +97,11 @@ class Main:
     def __close_logs(self) -> None:
         for log in self.__logs_services:
             log.close()
-                       
-            
+                                 
 if __name__ == "__main__":
     st = time.time()
     main = Main()
-    main.start()
+    main.start(sys.argv)
     et = time.time()
     elapsed_time = et - st
     print('Execution time:', elapsed_time, 'seconds')
