@@ -28,10 +28,7 @@ class BotSetting(SettingService):
         self.settings = self.__repository.get()
         
     def get_new_settings(self) -> dict:
-        setting: dict = dict.fromkeys(['executions', 'good_executions', 'bad_executions'])
-        setting['executions'] = 0
-        setting['good_executions'] = 0
-        setting['bad_executions'] = 0
+        setting: dict = dict.fromkeys(['executions', 'good_executions', 'bad_executions'], 0)
         return setting
         
     def update(self) -> None:
