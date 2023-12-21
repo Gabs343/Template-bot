@@ -1,4 +1,5 @@
 import sqlite3
+import ast
 
 class BotDB:
     
@@ -11,7 +12,7 @@ class BotDB:
         self.cursor = self.connection.cursor()
         
     def create(self) -> None: raise NotImplementedError
-    def insert(self) -> None: raise NotImplementedError
+    def __insert(self) -> None: raise NotImplementedError
     def get(self) -> dict: raise NotImplementedError
     def update(self, data: dict) -> None: raise NotImplementedError
 
@@ -24,29 +25,40 @@ class SettingTable(BotDB):
     def create(self) -> None:
         self.connect()
 
-        columns = ''
+        columns: str = ''
         for key, value in self.__settings.items():
-            column_type = ''
-            if(type(value) is str):
-                column_type = 'VARCHAR'
-            elif(type(value) is int):
+            column_type: str = ''
+            if(type(value) is int):
                 column_type = 'INTEGER'
-                
+            elif(type(value) is float):
+                column_type = 'REAL'
+            elif(type(value) is bool):
+                column_type = 'NUMERIC'
+            else:
+                column_type = 'TEXT'
+  
             columns += f'{key} {column_type} NOT NULL,'
         
-        query = f'''CREATE TABLE IF NOT EXISTS {self.__setting_table} ({columns[:-1]});'''
+        query: str = f'''CREATE TABLE IF NOT EXISTS {self.__setting_table} ({columns[:-1]});'''
                 
         self.cursor.execute(query)
         
         self.connection.commit()
         self.connection.close()
         
-        if(not self.get()): self.insert() 
+        if(not self.get()): self.__insert() 
     
-    def insert(self) -> None:
+    def __insert(self) -> None:
         self.connect()
         keys: list[str] = self.__settings.keys()
         items: list[str] = ['?'] * len(keys)
+        
+        for key, value in self.__settings.items():
+            if(type(value) is list or 
+               type(value) is tuple or 
+               type(value) is dict):
+                self.__settings[key] = str(value)
+            
         query = f'''INSERT INTO {self.__setting_table} ({','.join(keys)}) VALUES ({','.join(items)})'''
         self.cursor.execute(query, tuple(self.__settings.values()))
         self.connection.commit()
@@ -58,7 +70,19 @@ class SettingTable(BotDB):
         data = self.cursor.execute(query).fetchone()
         self.connection.commit()
         self.connection.close()
-        if(data != None): return dict(data)
+             
+        if(data != None):
+            data = dict(data)
+        
+            for key, value in data.items():
+                if(type(value) is str):
+                    if('{' == value[0] and '}' == value[:-1]):
+                        data[key] = ast.literal_eval(value)
+                    elif('[' == value[0] and ']' == value[:-1]):
+                        data[key] = ast.literal_eval(value)
+                    elif('(' == value[0] and ')' == value[:-1]):
+                        data[key] = ast.literal_eval(value)
+            return data
         else: return dict() 
     
     def update(self, data: dict) -> None:
