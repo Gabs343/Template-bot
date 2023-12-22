@@ -11,19 +11,57 @@ package Bot{
         - bot_name: str
         - status: str
         - status_callback: def
-        + start(): None
+        + start(*args): None
         + pause(): None
         + unpause(): None
         + stop(): None
         - notify_status(new_status: str): None
-        - get_log(log_type: LogService): LogService
+        - get_log_service(log_type: LogService): LogService
+        - get_setting_service(setting_type: SettingService): SettingService
+        - execution_begun(): None
+        - execution_completed(had_error: bool): None
         - execute_action(function: def, *args): Any
+        - close_logs(): None
+    }
+
+    abstract BotDB{
+        + init(bot_name: str): None
+        + create(): None
+        + create_folder(): None
+        + get_database_folder_path(): str
+        + get(): dict
+        + update(data: dict): None
+        - connect(): None
+        - insert(): None
+    }
+
+    class SettingTable{
+        - setting_table: str
+        - settings: dict
+        + init(bot_name: str, setting_name: str, settings: dict): None
     }
 
     abstract SettingService{
         - settings: dict
     }
-    class SettingConcrete{}
+    class BotSetting{
+        - repository: SettingTable
+        + init(bot_name: str)
+        + get_new_settings(): dict
+        + update(): None
+    }
+
+    class TaskManagerSetting{
+        - repository: SettingTable
+        + init(bot_name: str)
+        + get_new_settings(): dict
+        + update(): None
+        + create_scheduled_task(): str
+        + edit_scheduled_task(): str
+        + delete_scheduled_task(): str
+        - get_python_path(): str
+        - task_exists(): str
+    }
 
     abstract LogService{
         + create(): None
@@ -54,8 +92,13 @@ package Bot{
 Main o-left- SettingService
 Main o-right- LogService
 
-SettingService <|.. SettingConcrete
-LogService <|.. LogTxt
+BotDB <|.. SettingTable
+
+SettingService o-left- SettingTable
+SettingService <|.up. BotSetting
+SettingService <|.. TaskManagerSetting
+
+LogService <|.up. LogTxt
 LogService <|.. LogXlsx
 
 @enduml 
