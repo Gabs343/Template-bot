@@ -51,7 +51,7 @@ class LogTxt(LogService):
             handler.close()
             
     def __str__(self) -> str:
-        return "Log Txt"
+        return type(self).__name__
             
 class LogXlsx(LogService):
     def __init__(self) -> None:
@@ -93,4 +93,4 @@ class LogXlsx(LogService):
         dataframe.to_excel(f'{self.__path}\\{self.__name}.xlsx')
         
     def __str__(self) -> str:
-        return "Log Xlsx"
+        return type(self).__name__
