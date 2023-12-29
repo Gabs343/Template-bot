@@ -3,8 +3,10 @@ import sys
 
 from logs import *
 from settings import *
+from exceptions import *
   
 class Main:
+    __settings_services_classes: tuple = (BotSetting, TaskManagerSetting)
     __settings_services: list[SettingService] = []
     __logs_services: list[LogService] = []
     __bot_name: str = "TEST"
@@ -12,7 +14,7 @@ class Main:
     __status_callback = None
     
     def __init__(self) -> None:
-        self.__settings_services = [setting(bot_name=self.__bot_name) for setting in (BotSetting, TaskManagerSetting)]
+        self.__settings_services = self.__get_settings_services()
         
     @property   
     def settings_services(self) -> list[SettingService]:
@@ -40,20 +42,20 @@ class Main:
         
     def start(self, *args) -> None:
         self.__execution_begun()
-        
+
         #Your code goes here
         
         ####################
           
         self.__execution_completed()
                 
-    def pause(self):
+    def pause(self) -> None:
         self.__notify_status(new_status='PAUSED')
             
-    def unpause(self):
+    def unpause(self) -> None:
         self.__notify_status(new_status='RUNNING')
         
-    def stop(self):
+    def stop(self) -> None:
         self.__notify_status(new_status='CLOSING BOT')
         
     def __execution_begun(self) -> None:
@@ -81,27 +83,33 @@ class Main:
             self.__status_callback(new_status)
         
     def __get_log_service(self, log_type: LogService) -> LogService:
-        return next(log for log in self.__logs_services if isinstance(log, log_type))
+        try: return next(log for log in self.__logs_services if isinstance(log, log_type))
+        except StopIteration:
+            raise ServiceNotFound(f'The log service of type {log_type}, cannot be found')
     
     def __get_setting_service(self, setting_type: SettingService) -> SettingService:
-        return next(service for service in self.__settings_services if isinstance(service, setting_type))
-    
+        try: return next(service for service in self.__settings_services if isinstance(service, setting_type))
+        except StopIteration:
+            raise ServiceNotFound(f'The setting service of type {setting_type}, cannot be found')
+        
     def __execute_action(self, function, *args):
         logTxt: LogTxt = self.__get_log_service(log_type=LogTxt)
-        if(self.__status == 'PAUSED'):
-            while True:
-                if(self.__status=='RUNNING'):
-                    break
+        while self.__status == 'PAUSED':
+            if(self.__status=='RUNNING'):
+                break
         return logTxt.write_and_execute(function, *args)
     
     def __close_logs(self) -> None:
         for log in self.__logs_services:
             log.close()
-                                 
+    
+    def __get_settings_services(self) -> list[SettingService]:
+        return [service(bot_name=self.__bot_name) for service in self.__settings_services_classes]
+                                
 if __name__ == "__main__":
     st = time.time()
     main = Main()
-    main.start(sys.argv)
+    main.start(sys.argv[1:])
     et = time.time()
     elapsed_time = et - st
     print('Execution time:', elapsed_time, 'seconds')
