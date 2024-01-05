@@ -57,9 +57,7 @@ class TaskManagerSetting(SettingService):
         return path
     
     def get_new_settings(self) -> dict:
-        setting: dict = dict.fromkeys(['task_name'])
-        setting['task_name'] = 'None'
-        setting['start_time'] = ''
+        setting: dict = dict.fromkeys(['task_name'], 'None')
         return setting
     
     def update(self) -> None:
