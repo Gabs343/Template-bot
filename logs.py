@@ -35,11 +35,11 @@ class LogTxt(LogService):
     def write_info(self, message: str) -> None:
         self.__logger.info(message)
         
-    def write_and_execute(self, function, *args):
+    def write_and_execute(self, function, **kwargs):
         some_data = None
-        self.write_info(message=f'executing function: {function.__name__} with arguments: {args}')
-        some_data = function(*args)
-        self.write_info(message=f'function: {function.__name__} finished')
+        self.write_info(message=f'executing function: "{function.__name__}" with keyword arguments: {kwargs}')
+        some_data = function(**kwargs)
+        self.write_info(message=f'function: "{function.__name__}" finished')
         return some_data
         
     def write_error(self, message: str, detail: str = None) -> None:
