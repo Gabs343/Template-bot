@@ -88,11 +88,11 @@ class SettingTable(BotDB):
         
             for key, value in data.items():
                 if(type(value) is str):
-                    if('{' == value[0] and '}' == value[:-1]):
+                    if('{' == value[0] and '}' == value[-1]):
                         data[key] = ast.literal_eval(value)
-                    elif('[' == value[0] and ']' == value[:-1]):
+                    elif('[' == value[0] and ']' == value[-1]):
                         data[key] = ast.literal_eval(value)
-                    elif('(' == value[0] and ')' == value[:-1]):
+                    elif('(' == value[0] and ')' == value[-1]):
                         data[key] = ast.literal_eval(value)
             return data
         else: return dict() 
