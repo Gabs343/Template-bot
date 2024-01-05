@@ -92,12 +92,12 @@ class Main:
         except StopIteration:
             raise ServiceNotFound(f'The setting service of type {setting_type}, cannot be found')
         
-    def __execute_action(self, function, *args):
+    def __execute_action(self, function, **kwargs):
         logTxt: LogTxt = self.__get_log_service(log_type=LogTxt)
         while self.__status == 'PAUSED':
             if(self.__status=='RUNNING'):
                 break
-        return logTxt.write_and_execute(function, *args)
+        return logTxt.write_and_execute(function, **kwargs)
     
     def __close_logs(self) -> None:
         for log in self.__logs_services:
