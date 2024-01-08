@@ -6,7 +6,7 @@ from settings import *
 from exceptions import *
   
 class Main:
-    __settings_services_classes: tuple = (BotSetting, TaskManagerSetting)
+    __settings_services_classes: tuple = ()
     __settings_services: list[SettingService] = []
     __logs_services: list[LogService] = []
     __bot_name: str = "TEST"
@@ -63,18 +63,9 @@ class Main:
         
     def __execution_begun(self) -> None:
         self.__logs_services = [log() for log in (LogTxt, LogXlsx)]
-        bot_setting_service: BotSetting = self.__get_setting_service(setting_type=BotSetting)
-        bot_setting_service.settings['executions'] += 1
         self.__notify_status(new_status="RUNNING")
              
     def __execution_completed(self, had_error: bool = False):
-        bot_setting_service: BotSetting = self.__get_setting_service(setting_type=BotSetting)
-        if(had_error):  
-            bot_setting_service.settings['bad_executions'] += 1
-        else:
-            bot_setting_service.settings['good_executions'] += 1
-            
-        bot_setting_service.update()
         self.__notify_status(new_status="READY")
         self.__close_logs()
         
