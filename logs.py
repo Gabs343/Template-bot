@@ -1,4 +1,5 @@
 import os
+import time
 import logging
 import pandas as pd
 from datetime import datetime
@@ -38,8 +39,11 @@ class LogTxt(LogService):
     def write_and_execute(self, function, **kwargs):
         some_data = None
         self.write_info(message=f'executing function: "{function.__name__}" with keyword arguments: {kwargs}')
+        function_start : float = time.time()
         some_data = function(**kwargs)
-        self.write_info(message=f'function: "{function.__name__}" finished')
+        function_end: float = time.time()
+        elapsed_time: float = function_end - function_start
+        self.write_info(message=f'function: "{function.__name__}" finished in {elapsed_time} seconds')
         return some_data
         
     def write_error(self, message: str, detail: str = None) -> None:
@@ -89,8 +93,14 @@ class LogXlsx(LogService):
         self.__log[column][self.__row] = message
         
     def close(self):
-        dataframe = pd.DataFrame.from_dict(self.__log, orient="index").T
-        dataframe.to_excel(f'{self.__path}\\{self.__name}.xlsx')
+        self.create_folder(path=self.__path)
+        dataframe: pd.DataFrame = pd.DataFrame.from_dict(self.__log, orient="index").T
+        dataframe = dataframe.style.apply(self.__style_status, subset='Status')
+        dataframe.to_excel(f'{self.__path}\\{self.__name}.xlsx', engine='openpyxl')
+        
+    def __style_status(self, value: str):
+        colors = {'OK': 'green', 'ERROR': 'red'}
+        return [f'background-color: {colors[val]}; color:white' for val in value]
         
     def __str__(self) -> str:
         return type(self).__name__
