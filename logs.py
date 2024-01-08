@@ -1,7 +1,8 @@
 import os
-import time
 import logging
 import pandas as pd
+import time
+import pyscreenrec
 from datetime import datetime
 
 class LogService:
@@ -18,13 +19,17 @@ class LogTxt(LogService):
     def __init__(self) -> None:
         super().__init__()
         self.__path: str = f'{os.path.dirname(os.path.abspath(__file__))}\\logs\\logsTxt'
-        self.__name: str = f'Log-{datetime.now().strftime("%d.%m.%Y_%H%M%S")}'
+        self.__name: str = f'Log-{datetime.now().strftime("%d.%m.%Y_%H%M%S")}.txt'
         self.__logger: logging.Logger = None
         self.create_folder(path=self.__path)
         self.create()
+        
+    @property
+    def file_path(self) -> str:
+        return f'{self.__path}\\{self.__name}'
             
     def create(self) -> None:
-        logger_file: str = f'{self.__path}\\{self.__name}.txt'
+        logger_file: str = self.file_path
         formatter: logging.Formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
         handler: logging.FileHandler = logging.FileHandler(logger_file)
         
@@ -61,11 +66,15 @@ class LogXlsx(LogService):
     def __init__(self) -> None:
         super().__init__()
         self.__path: str = f'{os.path.dirname(os.path.abspath(__file__))}\\logs\\logsXlsx'
-        self.__name: str = f'Log-{datetime.now().strftime("%d.%m.%Y_%H%M%S")}'
+        self.__name: str = f'Log-{datetime.now().strftime("%d.%m.%Y_%H%M%S")}.xlsx'
         self.__row: int = 1
         self.__log: dict = {}
         self.create_folder(path=self.__path)
         self.create()
+        
+    @property
+    def file_path(self) -> str:
+        return f'{self.__path}\\{self.__name}'
             
     def create(self, columns: list[str] = None) -> None:
         log_columns: list[str] = ["Time", "Title", "Status", "Detail"]
@@ -89,18 +98,36 @@ class LogXlsx(LogService):
         self.__log["Status"][self.__row] = "ERROR"
         self.__row += 1
         
-    def write_in_column(self, column: str, message: str):
+    def write_in_column(self, column: str, message: str) -> None:
         self.__log[column][self.__row] = message
         
-    def close(self):
-        self.create_folder(path=self.__path)
+    def close(self) -> None:
         dataframe: pd.DataFrame = pd.DataFrame.from_dict(self.__log, orient="index").T
         dataframe = dataframe.style.apply(self.__style_status, subset='Status')
-        dataframe.to_excel(f'{self.__path}\\{self.__name}.xlsx', engine='openpyxl')
+        dataframe.to_excel(self.file_path, engine='openpyxl')
         
-    def __style_status(self, value: str):
+    def __style_status(self, value: str) -> list[str]:
         colors = {'OK': 'green', 'ERROR': 'red'}
         return [f'background-color: {colors[val]}; color:white' for val in value]
         
     def __str__(self) -> str:
         return type(self).__name__
+    
+class LogVideo(LogService):
+    def __init__(self) -> None:
+        super().__init__()
+        self.__path: str = f'{os.path.dirname(os.path.abspath(__file__))}\\logs\\logsRecords'
+        self.__name: str = f'Record-{datetime.now().strftime("%d.%m.%Y_%H%M%S")}.mp4'
+        self.__recorder = pyscreenrec.ScreenRecorder()
+        self.create_folder(path=self.__path)
+        self.create()
+    
+    @property
+    def file_path(self) -> str:
+        return f'{self.__path}\\{self.__name}'
+    
+    def create(self) -> None:
+        self.__recorder.start_recording(self.file_path, 10)
+    
+    def close(self) -> None:
+        self.__recorder.stop_recording()

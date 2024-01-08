@@ -7,6 +7,7 @@ from exceptions import *
   
 class Main:
     __settings_services_classes: tuple = (BotSetting, TaskManagerSetting)
+    __logs_services_classes: tuple = (LogTxt, LogXlsx, LogVideo)
     __settings_services: list[SettingService] = []
     __logs_services: list[LogService] = []
     __bot_name: str = "TEST"
@@ -62,7 +63,7 @@ class Main:
         self.__notify_status(new_status='CLOSING BOT')
         
     def __execution_begun(self) -> None:
-        self.__logs_services = [log() for log in (LogTxt, LogXlsx)]
+        self.__logs_services = [log() for log in self.__logs_services_classes]
         bot_setting_service: BotSetting = self.__get_setting_service(setting_type=BotSetting)
         bot_setting_service.settings['executions'] += 1
         self.__notify_status(new_status="RUNNING")
