@@ -7,6 +7,7 @@ from exceptions import *
   
 class Main:
     __settings_services_classes: tuple = ()
+    __logs_services_classes: tuple = (LogTxt, LogXlsx, LogVideo)
     __settings_services: list[SettingService] = []
     __logs_services: list[LogService] = []
     __bot_name: str = "TEST"
@@ -62,7 +63,7 @@ class Main:
         self.__notify_status(new_status='CLOSING BOT')
         
     def __execution_begun(self) -> None:
-        self.__logs_services = [log() for log in (LogTxt, LogXlsx)]
+        self.__logs_services = [log() for log in self.__logs_services_classes]
         self.__notify_status(new_status="RUNNING")
              
     def __execution_completed(self, had_error: bool = False):
