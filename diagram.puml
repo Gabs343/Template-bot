@@ -5,6 +5,9 @@ skinparam {
 }
 
 package Bot{
+    class Exception{}
+    class ServiceNotFound{}
+
     class Main{
         - settings_services: list[SettingService]
         - logs_services: list[LogService]
@@ -18,6 +21,7 @@ package Bot{
         - notify_status(new_status: str): None
         - get_log_service(log_type: LogService): LogService
         - get_setting_service(setting_type: SettingService): SettingService
+        - get_settings_services(): list[SettingService]
         - execution_begun(): None
         - execution_completed(had_error: bool): None
         - execute_action(function: def, *args): Any
@@ -86,6 +90,7 @@ package Bot{
         - log: dict
 
         + write_in_column(column: str, message: str): None
+        - style_status(value: str): list[str]
     }
 }
 
@@ -100,5 +105,7 @@ SettingService <|.. TaskManagerSetting
 
 LogService <|.up. LogTxt
 LogService <|.. LogXlsx
+
+Exception <|.right. ServiceNotFound
 
 @enduml 
