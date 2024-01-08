@@ -41,14 +41,17 @@ class Main:
         self.__status_callback = callback
         
     def start(self, *args) -> None:
-        self.__execution_begun()
+        try:
+            self.__execution_begun()
 
-        #Your code goes here
+            #Your code goes here
+            
+            ####################
+            
+            self.__execution_completed()
+        except:
+            pass
         
-        ####################
-          
-        self.__execution_completed()
-                
     def pause(self) -> None:
         self.__notify_status(new_status='PAUSED')
             
