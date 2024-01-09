@@ -64,10 +64,17 @@ class Main:
         
     def __execution_begun(self) -> None:
         self.__logs_services = [log() for log in self.__logs_services_classes]
+        logXlsx: LogXlsx = self.__get_log_service(log_type=LogXlsx)
+        logXlsx.write_info(message=f'The Bot has begun')
         self.__notify_status(new_status="RUNNING")
              
     def __execution_completed(self, had_error: bool = False):
         self.__notify_status(new_status="READY")
+        logXlsx: LogXlsx = self.__get_log_service(log_type=LogXlsx)
+        if(had_error):
+            logXlsx.write_error(message=f'The Bot has ended with errors')
+        else:
+            logXlsx.write_info(message=f'The Bot has ended without errors')
         self.__close_logs()
         
     def __notify_status(self, new_status: str) -> None:
