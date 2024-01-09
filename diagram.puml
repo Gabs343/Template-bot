@@ -14,6 +14,7 @@ package Bot{
         - bot_name: str
         - status: str
         - status_callback: def
+        - had_error: bool
         + start(*args): None
         + pause(): None
         + unpause(): None
@@ -23,7 +24,7 @@ package Bot{
         - get_setting_service(setting_type: SettingService): SettingService
         - get_settings_services(): list[SettingService]
         - execution_begun(): None
-        - execution_completed(had_error: bool): None
+        - execution_completed(): None
         - execute_action(function: def, *args): Any
         - close_logs(): None
     }

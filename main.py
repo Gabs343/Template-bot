@@ -13,6 +13,7 @@ class Main:
     __bot_name: str = "TEST"
     __status: str = "READY"
     __status_callback = None
+    __had_error: bool = False
     
     def __init__(self) -> None:
         self.__settings_services = self.__get_settings_services()
@@ -68,10 +69,10 @@ class Main:
         logXlsx.write_info(message=f'The Bot has begun')
         self.__notify_status(new_status="RUNNING")
              
-    def __execution_completed(self, had_error: bool = False):
+    def __execution_completed(self):
         self.__notify_status(new_status="READY")
         logXlsx: LogXlsx = self.__get_log_service(log_type=LogXlsx)
-        if(had_error):
+        if(self.__had_error):
             logXlsx.write_error(message=f'The Bot has ended with errors')
         else:
             logXlsx.write_info(message=f'The Bot has ended without errors')
