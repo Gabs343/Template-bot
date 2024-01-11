@@ -64,7 +64,8 @@ class Main:
         self.__notify_status(new_status='CLOSING BOT')
         
     def __execution_begun(self) -> None:
-        self.__logs_services = [log() for log in self.__logs_services_classes]
+        log_name: str = datetime.now().strftime("%d.%m.%Y_%H%M%S")
+        self.__logs_services = [log(name=log_name) for log in self.__logs_services_classes]
         logXlsx: LogXlsx = self.__get_log_service(log_type=LogXlsx)
         logXlsx.write_info(message=f'The Bot has begun')
         self.__notify_status(new_status="RUNNING")
