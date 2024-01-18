@@ -13,6 +13,7 @@ class Main:
     __bot_name: str = "TEST"
     __status: str = "READY"
     __status_callback = None
+    __had_error: bool = False
     
     def __init__(self) -> None:
         self.__settings_services = self.__get_settings_services()
@@ -63,17 +64,21 @@ class Main:
         self.__notify_status(new_status='CLOSING BOT')
         
     def __execution_begun(self) -> None:
-        self.__logs_services = [log() for log in self.__logs_services_classes]
+        log_name: str = datetime.now().strftime("%d.%m.%Y_%H%M%S")
+        self.__logs_services = [log(name=log_name) for log in self.__logs_services_classes]
         bot_setting_service: BotSetting = self.__get_setting_service(setting_type=BotSetting)
         bot_setting_service.settings['executions'] += 1
         self.__notify_status(new_status="RUNNING")
              
-    def __execution_completed(self, had_error: bool = False):
+    def __execution_completed(self):
         bot_setting_service: BotSetting = self.__get_setting_service(setting_type=BotSetting)
-        if(had_error):  
+        logXlsx: LogXlsx = self.__get_log_service(log_type=LogXlsx)
+        if(self.__had_error):  
             bot_setting_service.settings['bad_executions'] += 1
+            logXlsx.write_error(message=f'The Bot has ended with errors')
         else:
             bot_setting_service.settings['good_executions'] += 1
+            logXlsx.write_info(message=f'The Bot has ended without errors')
             
         bot_setting_service.update()
         self.__notify_status(new_status="READY")
